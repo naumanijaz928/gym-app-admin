@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+
+import { decrypt } from "./lib/session";
 const publicRoutes = ["/login", "/register", "/forgot-password"];
-export default function Middleware(req: NextRequest) {
-  const user = true; // Simulating user authentication state
+export default async function Middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
   const isPublic = publicRoutes.some((route) => path.startsWith(route));
 
-  const cookie = req.cookies.get("token")?.value || user;
-  //   const session = await decrypt(cookie);
+  const cookie = req.cookies.get("token")?.value;
+  const session = await decrypt(cookie);
 
-  if (!isPublic && !cookie) {
+  if (!isPublic && !session?.userId) {
     return NextResponse.redirect(new URL("/login", req.nextUrl));
   }
   if (isPublic && cookie) {
