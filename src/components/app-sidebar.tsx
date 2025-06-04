@@ -6,13 +6,13 @@ import {
   IconFileAi,
   IconFileDescription,
   IconHelp,
-  IconInnerShadowTop,
   IconListDetails,
   IconListLetters,
   IconReport,
   IconSettings,
   IconUsers,
 } from "@tabler/icons-react";
+import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
 
@@ -29,6 +29,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+
+import Logo from "../../public/playstore.png"; // Adjust the path as necessary
 
 const data = {
   user: {
@@ -153,8 +155,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <Link href="/">
-                <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Gym Booking</span>
+                {/* <IconInnerShadowTop className="!size-5" /> */}
+                <Image src={Logo} alt="logo" width={20} />
+                <span className="text-base font-semibold">
+                  Yourself Pilates
+                </span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

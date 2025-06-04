@@ -6,8 +6,8 @@ import React from "react";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
-  title: "Gym Booking",
-  description: "Gym Booking Application",
+  title: "Yourself Pilates",
+  description: "Yourself Pilates",
 };
 
 export default function RootLayout({

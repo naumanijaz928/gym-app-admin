@@ -1,5 +1,7 @@
+import { PlusIcon } from "lucide-react";
 import React from "react";
 
+import { Button } from "@/components/ui/button";
 // import { DataTable } from "@/components/data-table";
 import {
   Table,
@@ -61,14 +63,21 @@ const Bookings = () => {
   return (
     <div className="mt-2">
       {/* <DataTable data={data} /> */}
+      <div className="flex justify-between w-full px-2">
+        <h2>Bookings</h2>
+        <Button className="cursor-pointer">
+          <PlusIcon /> Add new Booking
+        </Button>
+      </div>
       <Table>
         <TableCaption>A list of your recent invoices.</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead className="w-[100px]">Invoice</TableHead>
             <TableHead>Status</TableHead>
-            <TableHead>Method</TableHead>
+            <TableHead>Name</TableHead>
             <TableHead className="text-right">Amount</TableHead>
+            <TableHead className="text-right">Approval</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -79,6 +88,10 @@ const Bookings = () => {
               <TableCell>{invoice.paymentMethod}</TableCell>
               <TableCell className="text-right">
                 {invoice.totalAmount}
+              </TableCell>
+              <TableCell className="text-right gap-2">
+                <Button variant="outline">Approve</Button>
+                <Button variant="ghost">Cancel</Button>
               </TableCell>
             </TableRow>
           ))}

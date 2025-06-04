@@ -6,8 +6,8 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export const metadata: Metadata = {
-  title: "Welcome | Gym Booking",
-  description: "Gym Booking Application | Dashboard",
+  title: "Welcome | Yourself Pilates",
+  description: "Yourself Pilates | Dashboard",
 };
 
 export default function ProtectedLayout({
