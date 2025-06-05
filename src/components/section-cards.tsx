@@ -17,7 +17,7 @@ export function SectionCards() {
         <CardHeader>
           <CardDescription>Total Bookings</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            $1,250.00
+            €1.250
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
@@ -39,7 +39,7 @@ export function SectionCards() {
         <CardHeader>
           <CardDescription>Total Teachers</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            1,234
+            1234
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
@@ -61,7 +61,7 @@ export function SectionCards() {
         <CardHeader>
           <CardDescription>Total Students</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            45,678
+            45678
           </CardTitle>
           <CardAction>
             <Badge variant="outline">

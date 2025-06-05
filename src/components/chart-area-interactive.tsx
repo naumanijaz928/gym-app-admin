@@ -128,11 +128,11 @@ const chartConfig = {
     label: "Visitors",
   },
   teacher: {
-    label: "Teacher",
+    label: "Professor",
     color: "var(--primary)",
   },
   student: {
-    label: "Student",
+    label: "Aluno",
     color: "var(--primary)",
   },
 } satisfies ChartConfig;

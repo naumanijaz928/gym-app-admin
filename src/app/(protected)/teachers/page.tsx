@@ -1,5 +1,7 @@
-import { PlusIcon } from "lucide-react";
+import { BadgeCheckIcon } from "lucide-react";
 
+// import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 // import { DataTable } from "@/components/data-table";
 import {
@@ -11,80 +13,122 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
+import { TeacherForm } from "./form";
 // import data from "@/constants/data.json";
 
-const invoices = [
+const professors = [
   {
-    invoice: "INV001",
-    paymentStatus: "John Doe",
-    totalAmount: "Yes",
-    paymentMethod: "American School",
+    id: 1,
+    professorName: "John Doe",
+    city: "New York",
+    email: "john@email.com",
+    status: "Active",
+    approval: true,
   },
   {
-    invoice: "INV002",
-    paymentStatus: "Jane Fhen",
-    totalAmount: "No",
-    paymentMethod: "Oxford University",
+    id: 2,
+    professorName: "Alice Johnson",
+    city: "Los Angeles",
+    email: "alice@email.com",
+    status: "Inactive",
+    approval: false,
   },
   {
-    invoice: "INV003",
-    paymentStatus: "Kake pen",
-    totalAmount: "Yes",
-    paymentMethod: "Cambridge University",
+    id: 3,
+    professorName: "Charlie White",
+    city: "Chicago",
+    email: "sample@email.com",
+    status: "Active",
+    approval: false,
   },
   {
-    invoice: "INV004",
-    paymentStatus: "Rob dave",
-    totalAmount: "Yes",
-    paymentMethod: "Harvard University",
+    id: 4,
+    professorName: "Eve Black",
+    city: "Houston",
+    email: "sample@email.com",
+    status: "Active",
+    approval: true,
   },
   {
-    invoice: "INV005",
-    paymentStatus: "Fraklin",
-    totalAmount: "No",
-    paymentMethod: "Stanford University",
+    id: 5,
+    professorName: "Frank Blue",
+    city: "Phoenix",
+    email: "sample@email.com",
+    status: "Inactive",
+    approval: false,
   },
   {
-    invoice: "INV006",
-    paymentStatus: "John Smith",
-    totalAmount: "Yes",
-    paymentMethod: "MIT",
+    id: 6,
+    professorName: "Grace Green",
+    city: "Philadelphia",
+    email: "sample@email.com",
+    status: "Active",
+    approval: true,
   },
   {
-    invoice: "INV007",
-    paymentStatus: "Geeky",
-    totalAmount: "No",
-    paymentMethod: "California Institute of Technology",
+    id: 7,
+    professorName: "Hank Red",
+    city: "San Antonio",
+    email: "sample@email.com",
+    status: "Active",
+    approval: false,
   },
 ];
-const Teachers = () => {
+const Professors = () => {
+  // const [open, setOpen] = useState(false);
   return (
     <div className="mt-2">
       {/* <DataTable data={data} /> */}
       <div className="flex justify-between w-full px-2">
-        <h1 className="text-2xl">Teachers</h1>
-        <Button className="cursor-pointer">
-          <PlusIcon /> Add new Teacher
-        </Button>
+        <h2>Professors</h2>
+        <TeacherForm />
       </div>
-      <Table>
-        <TableCaption>A list of your recent invoices.</TableCaption>
+      <Table className="mt-4">
+        <TableCaption>A list of Professors</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead className="w-[100px]">ID</TableHead>
-            <TableHead>Name</TableHead>
-            <TableHead>Institute</TableHead>
-            <TableHead className="text-right">Already Visit</TableHead>
+            <TableHead>Nome Professor</TableHead>
+            <TableHead>Cidade</TableHead>
+            <TableHead>Endereço Email</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Aprovar</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {invoices.map((invoice) => (
-            <TableRow key={invoice.invoice}>
-              <TableCell className="font-medium">{invoice.invoice}</TableCell>
-              <TableCell>{invoice.paymentStatus}</TableCell>
-              <TableCell>{invoice.paymentMethod}</TableCell>
-              <TableCell className="text-right">
-                {invoice.totalAmount}
+          {professors.map((professor) => (
+            <TableRow key={professor.id}>
+              <TableCell className="font-medium">{professor.id}</TableCell>
+              <TableCell>{professor.professorName}</TableCell>
+              <TableCell>{professor.city}</TableCell>
+              <TableCell>{professor.email}</TableCell>
+
+              <TableCell>
+                <Badge
+                  variant={
+                    professor?.status === "Active" ? "secondary" : "destructive"
+                  }
+                >
+                  <BadgeCheckIcon />
+                  {professor.status}
+                </Badge>
+              </TableCell>
+              <TableCell>
+                <Button
+                  className="cursor-pointer"
+                  variant="outline"
+                  disabled={professor?.status === "Active"}
+                >
+                  Approve
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="cursor-pointer"
+                  disabled={professor?.status === "Inactive"}
+                >
+                  Cancel
+                </Button>
               </TableCell>
             </TableRow>
           ))}
@@ -92,12 +136,29 @@ const Teachers = () => {
         {/* <TableFooter>
           <TableRow>
             <TableCell colSpan={3}>Total</TableCell>
-            <TableCell className="text-right">$2,500.00</TableCell>
+            <TableCell>$2,500.00</TableCell>
           </TableRow>
         </TableFooter> */}
+        {/* <Pagination>
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious href="#" />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink href="#">1</PaginationLink>
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationEllipsis />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationNext href="#" />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination> */}
       </Table>
+      {/* <DrawerDialog openModal={{ open, setOpen }} /> */}
     </div>
   );
 };
 
-export default Teachers;
+export default Professors;

@@ -6,7 +6,6 @@ import {
   IconFileAi,
   IconFileDescription,
   IconHelp,
-  IconListDetails,
   IconListLetters,
   IconReport,
   IconSettings,
@@ -30,13 +29,13 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-import Logo from "../../public/playstore.png"; // Adjust the path as necessary
+import Logo from "../../public/logo.png"; // Adjust the path as necessary
 
 const data = {
   user: {
-    name: "nauman Ijaz",
-    email: "naumanijaz@esspk.com",
-    avatar: "/avatars/shadcn.jpg",
+    name: "ADMIN",
+    email: "admin@yourselfpitaltes.com",
+    avatar: Logo,
   },
   navMain: [
     {
@@ -50,12 +49,12 @@ const data = {
       icon: IconListLetters,
     },
     {
-      title: "Teachers",
+      title: "Professors",
       url: "/teachers",
-      icon: IconListDetails,
+      icon: IconUsers,
     },
     {
-      title: "Students",
+      title: "Alunos",
       url: "/students",
       icon: IconUsers,
     },
@@ -156,7 +155,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <Link href="/">
                 {/* <IconInnerShadowTop className="!size-5" /> */}
-                <Image src={Logo} alt="logo" width={20} />
+                <Image src={Logo} alt="logo" width={30} />
                 <span className="text-base font-semibold">
                   Yourself Pilates
                 </span>

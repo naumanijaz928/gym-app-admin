@@ -7,8 +7,8 @@ import { createSession, deleteSession } from "@/lib/session";
 
 const testUser = {
   id: "1",
-  email: "sample@email.com",
-  password: "sample@email.com",
+  email: "admin@yourselfpitaltes.com",
+  password: "admin@yourselfpitaltes.com",
 };
 
 const loginSchema = z.object({
