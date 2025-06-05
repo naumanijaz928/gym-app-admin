@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  IconCalendar,
   IconCamera,
   IconDashboard,
   IconFileAi,
@@ -47,6 +48,11 @@ const data = {
       title: "Bookings",
       url: "/bookings",
       icon: IconListLetters,
+    },
+    {
+      title: "Calendar",
+      url: "#",
+      icon: IconCalendar,
     },
     {
       title: "Professors",
@@ -132,7 +138,7 @@ const data = {
     // },
     {
       name: "Reports",
-      url: "reports",
+      url: "#",
       icon: IconReport,
     },
     // {
