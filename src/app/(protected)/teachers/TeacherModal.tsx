@@ -1,0 +1,116 @@
+"use client";
+import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { Teacher } from "@/types/api";
+import { apiFetch } from "@/lib/api";
+import { ControlledDrawerDialog } from "@/components/ModalDrawer/ModalDrawer";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+interface TeacherModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSuccess: () => void;
+  initialData?: Teacher | null;
+}
+
+export function TeacherModal({
+  open,
+  onOpenChange,
+  onSuccess,
+  initialData,
+}: TeacherModalProps) {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<Teacher>({
+    defaultValues: initialData || {
+      email: "",
+      full_name: "",
+      role: "teacher",
+      bio: "",
+      contact_number: "",
+      photo: null,
+    },
+  });
+  const [error, setError] = useState<string | null>(null);
+
+  // Reset form when opening for add/edit
+  useEffect(() => {
+    reset(
+      initialData || {
+        email: "",
+        full_name: "",
+        role: "teacher",
+        bio: "",
+        contact_number: "",
+        photo: null,
+      }
+    );
+    setError(null);
+  }, [initialData, open, reset]);
+
+  async function onSubmit(data: Teacher) {
+    setError(null);
+    try {
+      if (initialData) {
+        await apiFetch(`/user/users/${initialData.email}/`, {
+          method: "PUT",
+          body: JSON.stringify(data),
+        });
+      } else {
+        await apiFetch("/user/users/", {
+          method: "POST",
+          body: JSON.stringify(data),
+        });
+      }
+      onSuccess();
+      onOpenChange(false);
+    } catch (err: any) {
+      setError(err.message);
+    }
+  }
+
+  return (
+    <ControlledDrawerDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={initialData ? "Edit Teacher" : "Add Teacher"}
+    >
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div>
+          <Label>Email</Label>
+          <Input
+            {...register("email", { required: true })}
+            disabled={!!initialData}
+          />
+          {errors.email && (
+            <span className="text-red-500 text-xs">Email is required</span>
+          )}
+        </div>
+        <div>
+          <Label>Full Name</Label>
+          <Input {...register("full_name", { required: true })} />
+          {errors.full_name && (
+            <span className="text-red-500 text-xs">Full name is required</span>
+          )}
+        </div>
+        <div>
+          <Label>Bio</Label>
+          <Input {...register("bio")} />
+        </div>
+        <div>
+          <Label>Contact Number</Label>
+          <Input {...register("contact_number")} />
+        </div>
+        <Button type="submit" disabled={isSubmitting}>
+          {initialData ? "Save" : "Add"}
+        </Button>
+        {error && <div className="text-red-500">{error}</div>}
+      </form>
+    </ControlledDrawerDialog>
+  );
+}

@@ -78,3 +78,46 @@ export function DrawerDialog({
     </Dialog>
   );
 }
+
+export function ControlledDrawerDialog({
+  open,
+  onOpenChange,
+  title,
+  children,
+  className,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title?: string;
+  children?: React.ReactNode;
+  className?: string;
+}) {
+  const isMobile = useIsMobile();
+  if (isMobile) {
+    return (
+      <Drawer open={open} onOpenChange={onOpenChange}>
+        <DrawerContent className={className}>
+          <DrawerHeader className="text-left">
+            <DrawerTitle>{title}</DrawerTitle>
+          </DrawerHeader>
+          {children}
+          <DrawerFooter className="pt-2">
+            <DrawerClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+    );
+  }
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className={className || "sm:max-w-[425px]"}>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
+        {children}
+      </DialogContent>
+    </Dialog>
+  );
+}

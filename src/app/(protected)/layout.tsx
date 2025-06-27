@@ -1,5 +1,8 @@
 import { Metadata } from "next";
 import React from "react";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { isTokenExpired } from "@/lib/jwt";
 
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
@@ -10,11 +13,19 @@ export const metadata: Metadata = {
   description: "Yourself Pilates | Dashboard",
 };
 
-export default function ProtectedLayout({
+export default async function ProtectedLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Server-side authentication check
+  const cookieStore = await cookies();
+  const authToken = cookieStore.get("auth-token")?.value;
+
+  if (!authToken || isTokenExpired(authToken)) {
+    redirect("/login");
+  }
+
   return (
     <>
       <SidebarProvider

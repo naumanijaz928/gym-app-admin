@@ -8,7 +8,7 @@ import {
 } from "@tabler/icons-react";
 import Image, { StaticImageData } from "next/image";
 
-import { logout } from "./forms/actions";
+import { useAuthStore } from "@/stores/authStore";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import {
   DropdownMenu,
@@ -36,6 +36,7 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
+  const { logout } = useAuthStore();
 
   return (
     <SidebarMenu>

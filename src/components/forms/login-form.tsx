@@ -1,6 +1,8 @@
 "use client";
-import React, { useActionState } from "react";
-import { useFormStatus } from "react-dom";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { z } from "zod";
+import { useAuthStore } from "@/stores/authStore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -14,13 +16,78 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-import { login } from "./actions";
+const loginSchema = z.object({
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters" }),
+});
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const [state, loginAction] = useActionState(login, undefined);
+  const [formErrors, setFormErrors] = useState<{
+    email?: string[];
+    password?: string[];
+  }>({});
+  const [apiError, setApiError] = useState<string | null>(null);
+  const { login, setLoading, isLoading } = useAuthStore();
+  const router = useRouter();
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setFormErrors({});
+    setApiError(null);
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    // Zod validation
+    const result = loginSchema.safeParse({ email, password });
+    if (!result.success) {
+      setFormErrors(result.error.flatten().fieldErrors);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/user/login/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        }
+      );
+
+      if (!res.ok) {
+        setApiError("Invalid email or password");
+        setLoading(false);
+        return;
+      }
+
+      const data = await res.json();
+
+      // Use the authStore login function
+      login({
+        access: data.access,
+        refresh: data.refresh,
+        email: data.email,
+        full_name: data.full_name,
+        role: data.role,
+      });
+
+      router.push("/dashboard");
+    } catch (err) {
+      setApiError("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
@@ -31,7 +98,7 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={loginAction}>
+          <form onSubmit={handleSubmit} noValidate>
             <div className="flex flex-col gap-6">
               <div className="grid gap-3">
                 <Label htmlFor="email">Email</Label>
@@ -41,9 +108,10 @@ export function LoginForm({
                   type="email"
                   placeholder="m@example.com"
                   required
+                  aria-invalid={!!formErrors.email}
                 />
-                {state?.errors?.email && (
-                  <p className="text-red-500">{state.errors.email}</p>
+                {formErrors.email && (
+                  <p className="text-red-500">{formErrors.email[0]}</p>
                 )}
               </div>
               <div className="grid gap-3">
@@ -56,17 +124,29 @@ export function LoginForm({
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" name="password" required />
-                {state?.errors?.password && (
-                  <p className="text-red-500">{state.errors.password}</p>
+                <Input
+                  id="password"
+                  type="password"
+                  name="password"
+                  required
+                  aria-invalid={!!formErrors.password}
+                />
+                {formErrors.password && (
+                  <p className="text-red-500">{formErrors.password[0]}</p>
                 )}
               </div>
               <div className="flex flex-col gap-3">
-                <SubmitButton />
-                {/* <Button variant="outline" className="w-full">
-                  Login with Google
-                </Button> */}
+                <Button
+                  type="submit"
+                  className="w-full cursor-pointer"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Loading..." : "Login"}
+                </Button>
               </div>
+              {apiError && (
+                <p className="text-red-500 text-center">{apiError}</p>
+              )}
             </div>
             <div className="mt-4 text-center text-sm">
               Don&apos;t have an account?{" "}
@@ -78,14 +158,5 @@ export function LoginForm({
         </CardContent>
       </Card>
     </div>
-  );
-}
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" className="w-full cursor-pointer" disabled={pending}>
-      {pending ? "Loading..." : "Login"}
-    </Button>
   );
 }

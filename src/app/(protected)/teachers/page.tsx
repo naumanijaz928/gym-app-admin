@@ -1,164 +1,140 @@
-import { BadgeCheckIcon } from "lucide-react";
-
-// import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
+"use client";
+import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/api";
+import { PaginatedResponse, Teacher } from "@/types/api";
+import { TeacherModal } from "./TeacherModal";
 import { Button } from "@/components/ui/button";
-// import { DataTable } from "@/components/data-table";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PencilIcon } from "lucide-react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { TableLoader } from "@/components/ui/TableLoader";
 
-import { TeacherForm } from "./form";
-// import data from "@/constants/data.json";
+export default function TeachersPage() {
+  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [count, setCount] = useState(0);
+  const [page, setPage] = useState(1);
+  const [modal, setModal] = useState<{ open: boolean; data: Teacher | null }>({
+    open: false,
+    data: null,
+  });
+  const [loading, setLoading] = useState(true);
 
-const professors = [
-  {
-    id: 1,
-    professorName: "John Doe",
-    city: "New York",
-    email: "john@email.com",
-    status: "Active",
-    approval: true,
-  },
-  {
-    id: 2,
-    professorName: "Alice Johnson",
-    city: "Los Angeles",
-    email: "alice@email.com",
-    status: "Inactive",
-    approval: false,
-  },
-  {
-    id: 3,
-    professorName: "Charlie White",
-    city: "Chicago",
-    email: "sample@email.com",
-    status: "Active",
-    approval: false,
-  },
-  {
-    id: 4,
-    professorName: "Eve Black",
-    city: "Houston",
-    email: "sample@email.com",
-    status: "Active",
-    approval: true,
-  },
-  {
-    id: 5,
-    professorName: "Frank Blue",
-    city: "Phoenix",
-    email: "sample@email.com",
-    status: "Inactive",
-    approval: false,
-  },
-  {
-    id: 6,
-    professorName: "Grace Green",
-    city: "Philadelphia",
-    email: "sample@email.com",
-    status: "Active",
-    approval: true,
-  },
-  {
-    id: 7,
-    professorName: "Hank Red",
-    city: "San Antonio",
-    email: "sample@email.com",
-    status: "Active",
-    approval: false,
-  },
-];
-const Professors = () => {
-  // const [open, setOpen] = useState(false);
+  async function fetchTeachers(page: number) {
+    setLoading(true);
+    try {
+      const res: PaginatedResponse<Teacher> = await apiFetch(
+        `/user/users/?role=professor&page=${page}`
+      );
+      setTeachers(res.results);
+      setCount(res.count);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchTeachers(page);
+  }, [page]);
+
+  const openAdd = () => setModal({ open: true, data: null });
+  const openEdit = (teacher: Teacher) =>
+    setModal({ open: true, data: teacher });
+
+  const totalPages = Math.ceil(count / 10); // assuming 10 per page
+
   return (
-    <div className="mt-2">
-      {/* <DataTable data={data} /> */}
-      <div className="flex justify-between w-full px-2">
-        <h2>Professors</h2>
-        <TeacherForm />
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <h2>Teachers</h2>
+        <Button onClick={openAdd}>Add Teacher</Button>
       </div>
-      <Table className="mt-4">
-        <TableCaption>A list of Professors</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">ID</TableHead>
-            <TableHead>Nome Professor</TableHead>
-            <TableHead>Cidade</TableHead>
-            <TableHead>Endereço Email</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Aprovar</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {professors.map((professor) => (
-            <TableRow key={professor.id}>
-              <TableCell className="font-medium">{professor.id}</TableCell>
-              <TableCell>{professor.professorName}</TableCell>
-              <TableCell>{professor.city}</TableCell>
-              <TableCell>{professor.email}</TableCell>
-
-              <TableCell>
-                <Badge
-                  variant={
-                    professor?.status === "Active" ? "secondary" : "destructive"
-                  }
-                >
-                  <BadgeCheckIcon />
-                  {professor.status}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <Button
-                  className="cursor-pointer"
-                  variant="outline"
-                  disabled={professor?.status === "Active"}
-                >
-                  Approve
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="cursor-pointer"
-                  disabled={professor?.status === "Inactive"}
-                >
-                  Cancel
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-        {/* <TableFooter>
-          <TableRow>
-            <TableCell colSpan={3}>Total</TableCell>
-            <TableCell>$2,500.00</TableCell>
-          </TableRow>
-        </TableFooter> */}
-        {/* <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious href="#" />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">1</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext href="#" />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination> */}
-      </Table>
-      {/* <DrawerDialog openModal={{ open, setOpen }} /> */}
+      {loading ? (
+        <TableLoader />
+      ) : (
+        <>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Email</TableHead>
+                <TableHead>Full Name</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Bio</TableHead>
+                <TableHead>Contact Number</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {teachers.map((teacher) => (
+                <TableRow key={teacher.email}>
+                  <TableCell>{teacher.email}</TableCell>
+                  <TableCell>{teacher.full_name}</TableCell>
+                  <TableCell>{teacher.role}</TableCell>
+                  <TableCell>{teacher.bio || "-"}</TableCell>
+                  <TableCell>{teacher.contact_number || "-"}</TableCell>
+                  <TableCell>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => openEdit(teacher)}
+                    >
+                      <PencilIcon className="w-4 h-4" /> Edit
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                />
+              </PaginationItem>
+              {[...Array(totalPages)].map((_, idx) => (
+                <PaginationItem key={idx}>
+                  <PaginationLink
+                    href="#"
+                    isActive={page === idx + 1}
+                    onClick={() => setPage(idx + 1)}
+                  >
+                    {idx + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </>
+      )}
+      <TeacherModal
+        open={modal.open}
+        onOpenChange={(open) =>
+          setModal({ open, data: open ? modal.data : null })
+        }
+        onSuccess={() => fetchTeachers(page)}
+        initialData={modal.data}
+      />
     </div>
   );
-};
-
-export default Professors;
+}
