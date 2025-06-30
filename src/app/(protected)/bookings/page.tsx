@@ -1,166 +1,212 @@
-import { BadgeCheckIcon } from "lucide-react";
+"use client";
+import { BadgeCheckIcon, PencilIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-// import data from "@/constants/data.json";
-// import {
-//   Pagination,
-//   PaginationContent,
-//   PaginationEllipsis,
-//   PaginationItem,
-//   PaginationLink,
-//   PaginationNext,
-//   PaginationPrevious,
-// } from "@/components/ui/pagination";
-// import { DataTable } from "@/components/data-table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { TableLoader } from "@/components/ui/TableLoader";
+import { apiFetch } from "@/lib/api";
+import { Booking, PaginatedResponse } from "@/types/api";
 
-import { DatePickerDemo } from "./DatePicker";
-import { BookingForm } from "./form";
+import { BookingModal } from "./BookingModal";
 
-const bookings = [
-  {
-    id: 1,
-    professorName: "John Doe",
-    studentName: "Jane Smith",
-    bookingDate: "2023-10-01",
-    trainingDate: "2023-20-01",
-    status: "Confirmed",
-    approval: true,
-  },
-  {
-    id: 2,
-    professorName: "Alice Johnson",
-    studentName: "Bob Brown",
-    bookingDate: "2023-10-02",
-    trainingDate: "2023-20-01",
-    status: "Confirmed",
-    approval: false,
-  },
-  {
-    id: 3,
-    professorName: "Charlie White",
-    studentName: "Diana Green",
-    bookingDate: "2023-10-03",
-    trainingDate: "2023-20-01",
-    status: "Cancelled",
-    approval: false,
-  },
-  {
-    id: 4,
-    professorName: "Eve Black",
-    studentName: "Frank Blue",
-    bookingDate: "2023-10-04",
-    trainingDate: "2023-20-01",
-    status: "Confirmed",
-    approval: true,
-  },
-  {
-    id: 5,
-    professorName: "Grace Yellow",
-    studentName: "Hank Red",
-    bookingDate: "2023-10-05",
-    trainingDate: "2023-20-01",
-    status: "Confirmed",
-    approval: false,
-  },
-];
-const Bookings = () => {
-  return (
-    <div className="mt-2">
-      {/* <DataTable data={data} /> */}
-      <div className="flex justify-between w-full px-2">
-        <DatePickerDemo />
-        <BookingForm />
-        {/* <Button className="cursor-pointer">
-          <PlusIcon /> Adicionar Nova Marcação
-        </Button> */}
+export default function BookingsPage() {
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [count, setCount] = useState(0);
+  const [page, setPage] = useState(1);
+  const [modal, setModal] = useState<{ open: boolean; data: Booking | null }>({
+    open: false,
+    data: null,
+  });
+  const [loading, setLoading] = useState(true);
+
+  async function fetchBookings(page: number) {
+    setLoading(true);
+    try {
+      const res: PaginatedResponse<Booking> = await apiFetch(
+        `/booking/bookings/?page=${page}`
+      );
+      setBookings(res.results);
+      setCount(res.count);
+    } catch (error) {
+      console.error("Failed to fetch bookings:", error);
+      // Fallback to empty array if API fails
+      setBookings([]);
+      setCount(0);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchBookings(page);
+  }, [page]);
+
+  const openAdd = () => setModal({ open: true, data: null });
+  const openEdit = (booking: Booking) =>
+    setModal({ open: true, data: booking });
+
+  const totalPages = Math.ceil(count / 10); // assuming 10 per page
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        Loading bookings...
       </div>
-      <Table className="mt-4">
-        <TableCaption>A list of Bookings</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">ID</TableHead>
-            <TableHead>Nome Professor</TableHead>
-            <TableHead>Nome Aluno</TableHead>
-            <TableHead>Data Marcação</TableHead>
-            <TableHead>Data Treino</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Approval</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {bookings.map((booking) => (
-            <TableRow key={booking.id}>
-              <TableCell className="font-medium">{booking.id}</TableCell>
-              <TableCell>{booking.professorName}</TableCell>
-              <TableCell>{booking.studentName}</TableCell>
-              <TableCell>{booking.bookingDate}</TableCell>
-              <TableCell>{booking.trainingDate}</TableCell>
-              <TableCell>
-                <Badge
-                  variant={
-                    booking?.status === "Confirmed"
-                      ? "secondary"
-                      : "destructive"
-                  }
-                >
-                  <BadgeCheckIcon />
-                  {booking.status}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <Button
-                  className="cursor-pointer"
-                  variant="outline"
-                  disabled={booking?.status === "Confirmed"}
-                >
-                  Approve
-                </Button>
-                <Button
-                  variant="ghost"
-                  className="cursor-pointer"
-                  disabled={booking?.status === "Cancelled"}
-                >
-                  Cancel
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-        {/* <TableFooter>
-          <TableRow>
-            <TableCell colSpan={3}>Total</TableCell>
-            <TableCell>$2,500.00</TableCell>
-          </TableRow>
-        </TableFooter> */}
-        {/* <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious href="#" />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink href="#">1</PaginationLink>
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationNext href="#" />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination> */}
-      </Table>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-4 px-4">
+        <h2 className="text-2xl font-bold">Bookings</h2>
+        <Button onClick={openAdd}>Adicionar Nova Marcação</Button>
+      </div>
+      {loading ? (
+        <TableLoader />
+      ) : (
+        <>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Booking Title</TableHead>
+                <TableHead>Nome Professor</TableHead>
+                {/* <TableHead>Teacher Email</TableHead> */}
+                <TableHead>Data Marcação</TableHead>
+                <TableHead> Data Treino</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Approval</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {bookings.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="text-center text-muted-foreground"
+                  >
+                    No bookings found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                bookings.map((booking) => (
+                  <TableRow key={booking.id}>
+                    <TableCell>{booking.title}</TableCell>
+                    <TableCell>{booking.professor_details.full_name}</TableCell>
+                    {/* <TableCell>{booking.teacher_email}</TableCell> */}
+                    <TableCell>
+                      {new Date(booking.created_at).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      {new Date(booking.booking_date).toLocaleString()}
+                    </TableCell>
+
+                    <TableCell>
+                      <Badge
+                        variant={
+                          booking?.status === "confirmed"
+                            ? "secondary"
+                            : "destructive"
+                        }
+                      >
+                        <BadgeCheckIcon />
+                        {booking.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        className="cursor-pointer"
+                        variant="outline"
+                        disabled={booking?.status === "confirmed"}
+                      >
+                        Approve
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        className="cursor-pointer"
+                        disabled={booking.status === "cancelled"}
+                      >
+                        Cancel
+                      </Button>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openEdit(booking)}
+                      >
+                        <PencilIcon className="w-4 h-4 mr-1" /> Edit
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+          {totalPages > 1 && (
+            <Pagination className="mt-4">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    href="#"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    className={
+                      page === 1 ? "pointer-events-none opacity-50" : ""
+                    }
+                  />
+                </PaginationItem>
+                {[...Array(totalPages)].map((_, idx) => (
+                  <PaginationItem key={idx}>
+                    <PaginationLink
+                      href="#"
+                      isActive={page === idx + 1}
+                      onClick={() => setPage(idx + 1)}
+                    >
+                      {idx + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    href="#"
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    className={
+                      page === totalPages
+                        ? "pointer-events-none opacity-50"
+                        : ""
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
+        </>
+      )}
+      <BookingModal
+        open={modal.open}
+        onOpenChange={(open) =>
+          setModal({ open, data: open ? modal.data : null })
+        }
+        onSuccess={() => fetchBookings(page)}
+        initialData={modal.data}
+      />
     </div>
   );
-};
-
-export default Bookings;
+}

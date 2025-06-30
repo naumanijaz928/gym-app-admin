@@ -1,24 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { decrypt } from "./lib/session";
-const publicRoutes = ["/login", "/register", "/forgot-password"];
+import { isTokenExpired } from "@/lib/jwt";
+
+const publicRoutes = ["/login", "/signup", "/forgot-password"];
+
 export default async function Middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
-
   const isPublic = publicRoutes.some((route) => path.startsWith(route));
 
-  const cookie = req.cookies.get("token")?.value;
-  const session = await decrypt(cookie);
+  // Get token from cookie (old system uses 'auth-token')
+  const authToken = req.cookies.get("auth-token")?.value;
 
-  if (!isPublic && !session?.userId) {
-    return NextResponse.redirect(new URL("/login", req.nextUrl));
+  // Check if user is authenticated
+  const isAuthenticated = authToken && !isTokenExpired(authToken);
+
+  // If accessing public routes (login, signup) and user is authenticated
+  if (isPublic && isAuthenticated) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
   }
-  if (isPublic && cookie) {
-    return NextResponse.redirect(new URL("/dashboard", req.nextUrl));
+
+  // If accessing protected routes and user is not authenticated
+  if (!isPublic && !isAuthenticated) {
+    return NextResponse.redirect(new URL("/login", req.url));
   }
+
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!_next|favicon.ico).*)"], // Match everything except static
+  matcher: ["/((?!_next|favicon.ico|api).*)"],
 };

@@ -3,6 +3,7 @@ import "./globals.css";
 import { Metadata } from "next";
 import React from "react";
 
+import AuthProvider from "@/components/AuthProvider";
 import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
@@ -18,14 +19,16 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          themes={["orange", "dark", "light"]}
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            themes={["orange", "dark", "light"]}
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
