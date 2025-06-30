@@ -1,18 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
-import { apiFetch } from "@/lib/api";
-import { PaginatedResponse, Teacher } from "@/types/api";
-import { TeacherModal } from "./TeacherModal";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { PencilIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
 import {
   Pagination,
   PaginationContent,
@@ -21,22 +11,36 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { TableLoader } from "@/components/ui/TableLoader";
+import { apiFetch } from "@/lib/api";
+import { PaginatedResponse, Professor } from "@/types/api";
+
+import { TeacherModal } from "./TeacherModal";
 
 export default function TeachersPage() {
-  const [teachers, setTeachers] = useState<Teacher[]>([]);
+  const [teachers, setTeachers] = useState<Professor[]>([]);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
-  const [modal, setModal] = useState<{ open: boolean; data: Teacher | null }>({
-    open: false,
-    data: null,
-  });
+  const [modal, setModal] = useState<{ open: boolean; data: Professor | null }>(
+    {
+      open: false,
+      data: null,
+    }
+  );
   const [loading, setLoading] = useState(true);
 
   async function fetchTeachers(page: number) {
     setLoading(true);
     try {
-      const res: PaginatedResponse<Teacher> = await apiFetch(
+      const res: PaginatedResponse<Professor> = await apiFetch(
         `/user/users/?role=professor&page=${page}`
       );
       setTeachers(res.results);
@@ -51,7 +55,7 @@ export default function TeachersPage() {
   }, [page]);
 
   const openAdd = () => setModal({ open: true, data: null });
-  const openEdit = (teacher: Teacher) =>
+  const openEdit = (teacher: Professor) =>
     setModal({ open: true, data: teacher });
 
   const totalPages = Math.ceil(count / 10); // assuming 10 per page

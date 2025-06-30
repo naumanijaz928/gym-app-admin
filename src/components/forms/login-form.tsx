@@ -1,8 +1,7 @@
 "use client";
-import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import React, { useState } from "react";
 import { z } from "zod";
-import { useAuthStore } from "@/stores/authStore";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores/authStore";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -82,6 +82,7 @@ export function LoginForm({
 
       router.push("/dashboard");
     } catch (err) {
+      console.error(err);
       setApiError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);

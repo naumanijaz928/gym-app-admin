@@ -14,6 +14,7 @@ interface AuthState {
   refreshToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  // eslint-disable-next-line
   login: (tokens: {
     access: string;
     refresh: string;
@@ -22,13 +23,15 @@ interface AuthState {
     role: string;
   }) => void;
   logout: () => void;
+  // eslint-disable-next-line
   setTokens: (access: string, refresh: string) => void;
+  // eslint-disable-next-line
   setLoading: (loading: boolean) => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       accessToken: null,
       refreshToken: null,

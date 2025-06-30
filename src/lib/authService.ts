@@ -1,4 +1,6 @@
 // lib/authService.ts
+import { RequestInit } from "next/dist/server/web/spec-extension/request";
+
 import { useAuthStore } from "@/stores/authStore";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;

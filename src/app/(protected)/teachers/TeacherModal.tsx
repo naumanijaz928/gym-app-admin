@@ -1,18 +1,20 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Teacher } from "@/types/api";
-import { apiFetch } from "@/lib/api";
+
 import { ControlledDrawerDialog } from "@/components/ModalDrawer/ModalDrawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { apiFetch } from "@/lib/api";
+import { Professor } from "@/types/api";
 
 interface TeacherModalProps {
   open: boolean;
+  // eslint-disable-next-line
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
-  initialData?: Teacher | null;
+  initialData?: Professor | null;
 }
 
 export function TeacherModal({
@@ -26,7 +28,7 @@ export function TeacherModal({
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<Teacher>({
+  } = useForm<Professor>({
     defaultValues: initialData || {
       email: "",
       full_name: "",
@@ -53,7 +55,7 @@ export function TeacherModal({
     setError(null);
   }, [initialData, open, reset]);
 
-  async function onSubmit(data: Teacher) {
+  async function onSubmit(data: Professor) {
     setError(null);
     try {
       if (initialData) {
@@ -69,7 +71,9 @@ export function TeacherModal({
       }
       onSuccess();
       onOpenChange(false);
+      // eslint-disable-next-line
     } catch (err: any) {
+      console.error(err);
       setError(err.message);
     }
   }

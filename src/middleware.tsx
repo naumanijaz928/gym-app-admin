@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+
 import { isTokenExpired } from "@/lib/jwt";
 
 const publicRoutes = ["/login", "/signup", "/forgot-password"];

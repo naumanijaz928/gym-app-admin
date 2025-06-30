@@ -35,7 +35,7 @@ const eslintConfig = [
       "simple-import-sort/imports": "error",
       "simple-import-sort/exports": "error",
     },
-    ignorePatterns: ["node_modules", ".next", "out", "build"],
+    ignorePatterns: ["node_modules", "/server.js", ".next", "out", "build"],
   }),
 ];
 

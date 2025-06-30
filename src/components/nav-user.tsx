@@ -9,6 +9,7 @@ import {
 import Image, { StaticImageData } from "next/image";
 
 import { useAuthStore } from "@/stores/authStore";
+
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import {
   DropdownMenu,

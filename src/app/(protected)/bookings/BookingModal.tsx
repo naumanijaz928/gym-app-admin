@@ -1,21 +1,22 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import React, { useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import * as z from "zod";
-import {
-  Booking,
-  Professor,
-  Student,
-  Slot,
-  PaginatedResponse,
-} from "@/types/api";
-import { apiFetch } from "@/lib/api";
+
 import { ControlledDrawerDialog } from "@/components/ModalDrawer/ModalDrawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TableLoader } from "@/components/ui/TableLoader";
+import { apiFetch } from "@/lib/api";
+import {
+  Booking,
+  PaginatedResponse,
+  Professor,
+  Slot,
+  Student,
+} from "@/types/api";
 
 const bookingSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -32,6 +33,7 @@ type BookingFormValues = z.infer<typeof bookingSchema>;
 
 interface BookingModalProps {
   open: boolean;
+  // eslint-disable-next-line
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
   initialData?: Booking | null;
@@ -131,6 +133,7 @@ export function BookingModal({
   }, [initialData, open]);
 
   // Handle multi-select change
+  // eslint-disable-next-line
   const handleStudentsChange = (selectedOptions: HTMLSelectElement) => {
     const selectedValues = Array.from(selectedOptions.selectedOptions).map(
       (option) => parseInt(option.value)
@@ -161,6 +164,7 @@ export function BookingModal({
       setSuccess(true);
       onSuccess();
       onOpenChange(false);
+      // eslint-disable-next-line
     } catch (err: any) {
       setError(err.message || "Failed to save booking");
     } finally {

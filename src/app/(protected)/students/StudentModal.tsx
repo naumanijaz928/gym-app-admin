@@ -1,15 +1,17 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Student } from "@/types/api";
-import { apiFetch } from "@/lib/api";
+
 import { ControlledDrawerDialog } from "@/components/ModalDrawer/ModalDrawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { apiFetch } from "@/lib/api";
+import { Student } from "@/types/api";
 
 interface StudentModalProps {
   open: boolean;
+  // eslint-disable-next-line
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
   initialData?: Student | null;
@@ -69,6 +71,7 @@ export function StudentModal({
       }
       onSuccess();
       onOpenChange(false);
+      // eslint-disable-next-line
     } catch (err: any) {
       setError(err.message);
     }

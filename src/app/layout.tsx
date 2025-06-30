@@ -3,8 +3,8 @@ import "./globals.css";
 import { Metadata } from "next";
 import React from "react";
 
-import { ThemeProvider } from "@/components/theme-provider";
 import AuthProvider from "@/components/AuthProvider";
+import { ThemeProvider } from "@/components/theme-provider";
 
 export const metadata: Metadata = {
   title: "Yourself Pilates",

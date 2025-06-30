@@ -1,18 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
-import { apiFetch } from "@/lib/api";
-import { PaginatedResponse, Booking } from "@/types/api";
-import { BookingModal } from "./BookingModal";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { BadgeCheckIcon, PencilIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Pagination,
   PaginationContent,
@@ -21,8 +12,19 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { TableLoader } from "@/components/ui/TableLoader";
+import { apiFetch } from "@/lib/api";
+import { Booking, PaginatedResponse } from "@/types/api";
+
+import { BookingModal } from "./BookingModal";
 
 export default function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);

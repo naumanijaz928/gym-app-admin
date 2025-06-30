@@ -87,6 +87,7 @@ export function ControlledDrawerDialog({
   className,
 }: {
   open: boolean;
+  // eslint-disable-next-line
   onOpenChange: (open: boolean) => void;
   title?: string;
   children?: React.ReactNode;

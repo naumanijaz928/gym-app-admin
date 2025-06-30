@@ -1,12 +1,12 @@
 import { Metadata } from "next";
-import React from "react";
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { isTokenExpired } from "@/lib/jwt";
+import { redirect } from "next/navigation";
+import React from "react";
 
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { isTokenExpired } from "@/lib/jwt";
 
 export const metadata: Metadata = {
   title: "Welcome | Yourself Pilates",

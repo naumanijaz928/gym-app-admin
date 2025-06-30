@@ -1,8 +1,9 @@
 // components/ProtectedRoute.tsx
 "use client";
 
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import React, { useEffect } from "react";
+
 import { useAuthStore } from "@/stores/authStore";
 
 interface ProtectedRouteProps {
@@ -48,7 +49,7 @@ export default function ProtectedRoute({
             Access Denied
           </h2>
           <p className="text-gray-600">
-            You don't have permission to access this page.
+            You don&apos;t have permission to access this page.
           </p>
         </div>
       </div>

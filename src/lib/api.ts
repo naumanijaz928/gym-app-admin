@@ -1,3 +1,5 @@
+import { RequestInit } from "next/dist/server/web/spec-extension/request";
+
 import { useAuthStore } from "@/stores/authStore";
 
 export async function apiFetch<T>(url: string, options: RequestInit = {}) {

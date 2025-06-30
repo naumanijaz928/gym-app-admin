@@ -1,18 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
-import { apiFetch } from "@/lib/api";
-import { PaginatedResponse, Student } from "@/types/api";
-import { StudentModal } from "./StudentModal";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { PencilIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
 import {
   Pagination,
   PaginationContent,
@@ -21,7 +11,19 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { TableLoader } from "@/components/ui/TableLoader";
+import { apiFetch } from "@/lib/api";
+import { PaginatedResponse, Student } from "@/types/api";
+
+import { StudentModal } from "./StudentModal";
 
 export default function StudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);

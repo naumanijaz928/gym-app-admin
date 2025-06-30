@@ -29,9 +29,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useAuthStore } from "@/stores/authStore";
 
 import Logo from "../../public/logo.png"; // Adjust the path as necessary
-import { useAuthStore } from "@/stores/authStore";
 
 const data = {
   user: {
@@ -185,6 +185,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           user={{
             name: sidebarUser.full_name,
             email: sidebarUser.email,
+            // eslint-disable-next-line
             avatar: (sidebarUser as any).avatar || Logo,
           }}
         />

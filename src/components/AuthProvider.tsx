@@ -1,9 +1,10 @@
 // components/AuthProvider.tsx
 "use client";
 
-import { useEffect } from "react";
-import { useAuthStore } from "@/stores/authStore";
+import React, { useEffect } from "react";
+
 import { authService } from "@/lib/authService";
+import { useAuthStore } from "@/stores/authStore";
 
 export default function AuthProvider({
   children,
