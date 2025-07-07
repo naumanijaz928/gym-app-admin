@@ -4,6 +4,8 @@ import { type Icon, IconCirclePlusFilled } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useVideoStore } from "@/stores/videoStore";
+
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -22,6 +24,12 @@ export function NavMain({
   }[];
 }) {
   const pathname = usePathname();
+  const { setUploadModalOpen } = useVideoStore();
+
+  const handleUploadClick = () => {
+    setUploadModalOpen(true);
+  };
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -30,6 +38,7 @@ export function NavMain({
             <SidebarMenuButton
               tooltip="Quick Create"
               className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
+              onClick={handleUploadClick}
             >
               <IconCirclePlusFilled />
               <span>Upload Video</span>

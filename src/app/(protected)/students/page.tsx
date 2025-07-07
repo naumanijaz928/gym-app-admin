@@ -39,7 +39,7 @@ export default function StudentsPage() {
     setLoading(true);
     try {
       const res: PaginatedResponse<Student> = await apiFetch(
-        `/user/users/?role=student&page=${page}`
+        `/user/students/?page=${page}`
       );
       setStudents(res.results);
       setCount(res.count);
@@ -73,8 +73,8 @@ export default function StudentsPage() {
               <TableRow>
                 <TableHead>Email</TableHead>
                 <TableHead>Full Name</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Bio</TableHead>
+                {/* <TableHead>Role</TableHead>
+                <TableHead>Bio</TableHead> */}
                 <TableHead>Contact Number</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -84,8 +84,8 @@ export default function StudentsPage() {
                 <TableRow key={student.email}>
                   <TableCell>{student.email}</TableCell>
                   <TableCell>{student.full_name}</TableCell>
-                  <TableCell>{student.role}</TableCell>
-                  <TableCell>{student.bio || "-"}</TableCell>
+                  {/* <TableCell>{student.role}</TableCell>
+                  <TableCell>{student.bio || "-"}</TableCell> */}
                   <TableCell>{student.contact_number || "-"}</TableCell>
                   <TableCell>
                     <Button

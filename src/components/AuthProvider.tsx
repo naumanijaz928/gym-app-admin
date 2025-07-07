@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // components/AuthProvider.tsx
 "use client";
 

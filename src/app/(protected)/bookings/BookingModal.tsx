@@ -1,4 +1,5 @@
 "use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -8,8 +9,10 @@ import { ControlledDrawerDialog } from "@/components/ModalDrawer/ModalDrawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { MultiSelect } from "@/components/ui/multi-select";
 import { TableLoader } from "@/components/ui/TableLoader";
 import { apiFetch } from "@/lib/api";
+import { getTodayDateString } from "@/lib/utils";
 import {
   Booking,
   PaginatedResponse,
@@ -55,19 +58,23 @@ export function BookingModal({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
+  // Track if the professor was changed by the user
+  const initialProfessorRef = React.useRef<number | null>(null);
+  const initialStudentsSetRef = React.useRef(false);
+
   const defaultValues: BookingFormValues = initialData
     ? {
         title: initialData.title || "",
         professor: initialData.professor_details?.id || 0,
-        students: Array.isArray(initialData.students)
-          ? typeof initialData.students[0] === "object"
-            ? (initialData.students as Student[]).map((s) => s.id)
-            : (initialData.students as number[])
-          : [],
+        students:
+          initialData.student_details &&
+          Array.isArray(initialData.student_details)
+            ? (initialData.student_details as { id: number }[]).map((s) => s.id)
+            : [],
         booking_date: initialData.booking_date || "",
         time_slot: initialData.time_slot || "",
         notes: initialData.notes || "",
-        status: initialData.status || "pending",
+        status: initialData.status || "confirmed",
         // approve: initialData.approve ?? false,
       }
     : {
@@ -77,7 +84,7 @@ export function BookingModal({
         booking_date: "",
         time_slot: "",
         notes: "",
-        status: "pending",
+        status: "confirmed",
         // approve: false,
       };
 
@@ -94,10 +101,11 @@ export function BookingModal({
     defaultValues,
   });
 
-  // Watch booking_date for slot fetching
+  // Watch booking_date and professor for slot and student fetching
   const bookingDate = watch("booking_date");
+  const selectedProfessor = watch("professor");
 
-  // Fetch professors
+  // Fetch professors on mount
   useEffect(() => {
     setLoadingProfessors(true);
     apiFetch<PaginatedResponse<Professor>>("/user/users/?role=professor")
@@ -106,14 +114,49 @@ export function BookingModal({
       .finally(() => setLoadingProfessors(false));
   }, []);
 
-  // Fetch students
+  // Fetch students when professor changes
   useEffect(() => {
+    if (!selectedProfessor) {
+      setStudents([]);
+      setValue("students", []);
+      initialProfessorRef.current = null;
+      initialStudentsSetRef.current = false;
+      return;
+    }
     setLoadingStudents(true);
-    apiFetch<PaginatedResponse<Student>>("/user/users/?role=student")
-      .then((res) => setStudents(res.results || []))
+    apiFetch<Student[]>(
+      `/user/students/by-professor/?professor_id=${selectedProfessor}`
+    )
+      .then((res) => {
+        setStudents(res || []);
+        // Only set students on first load for edit mode
+        if (
+          initialData &&
+          initialData.professor_details?.id === selectedProfessor &&
+          !initialStudentsSetRef.current &&
+          initialData.student_details &&
+          Array.isArray(initialData.student_details)
+        ) {
+          setValue(
+            "students",
+            (initialData.student_details as { id: number }[]).map((s) => s.id)
+          );
+          initialStudentsSetRef.current = true;
+        } else if (
+          initialProfessorRef.current !== null &&
+          initialProfessorRef.current !== selectedProfessor
+        ) {
+          // Professor changed by user, clear students
+          setValue("students", []);
+        }
+        // Set the initial professor ref if not set
+        if (initialProfessorRef.current === null) {
+          initialProfessorRef.current = selectedProfessor;
+        }
+      })
       .catch(() => setStudents([]))
       .finally(() => setLoadingStudents(false));
-  }, []);
+  }, [selectedProfessor, setValue, initialData]);
 
   // Fetch slots when booking_date changes
   useEffect(() => {
@@ -226,24 +269,20 @@ export function BookingModal({
               control={control}
               name="students"
               render={({ field }) => (
-                <select
-                  multiple
-                  value={field.value.map(String)}
-                  onChange={(e) => {
-                    const selectedValues = Array.from(
-                      e.target.selectedOptions
-                    ).map((option) => parseInt(option.value));
-                    field.onChange(selectedValues);
-                  }}
-                  className="w-full border rounded px-3 py-2 min-h-[100px]"
-                  disabled={formLoading}
-                >
-                  {students.map((student) => (
-                    <option key={student.id} value={student.id}>
-                      {student.full_name}
-                    </option>
-                  ))}
-                </select>
+                <MultiSelect
+                  options={students.map((student) => ({
+                    label: student.full_name,
+                    value: student.id,
+                  }))}
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder={
+                    selectedProfessor
+                      ? "Select students..."
+                      : "Select a professor first"
+                  }
+                  disabled={formLoading || !selectedProfessor}
+                />
               )}
             />
           )}
@@ -259,6 +298,7 @@ export function BookingModal({
             type="date"
             {...register("booking_date")}
             disabled={formLoading}
+            min={getTodayDateString()}
           />
           {errors.booking_date && (
             <span className="text-red-500 text-xs">
@@ -304,7 +344,7 @@ export function BookingModal({
             disabled={formLoading}
           />
         </div>
-        <div>
+        {/* <div>
           <Label>Status</Label>
           <Controller
             control={control}
@@ -317,7 +357,7 @@ export function BookingModal({
               >
                 <option value="pending">Pending</option>
                 <option value="confirmed">Confirmed</option>
-                {/* <option value="cancelled">Cancelled</option> */}
+                <option value="cancelled">Cancelled</option>
               </select>
             )}
           />
@@ -326,7 +366,7 @@ export function BookingModal({
               {errors.status.message}
             </span>
           )}
-        </div>
+        </div> */}
         {/* <div className="flex items-center gap-2">
           <input type="checkbox" {...register("approve")} disabled={formLoading} id="approve" />
           <Label htmlFor="approve">Approved</Label>

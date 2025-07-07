@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import { TableLoader } from "@/components/ui/TableLoader";
 import { apiFetch } from "@/lib/api";
-import { PaginatedResponse, Professor } from "@/types/api";
+import { PaginatedResponse, Professor, Student } from "@/types/api";
 
 import { TeacherModal } from "./TeacherModal";
 
@@ -76,7 +76,8 @@ export default function TeachersPage() {
                 <TableHead>Email</TableHead>
                 <TableHead>Full Name</TableHead>
                 <TableHead>Role</TableHead>
-                <TableHead>Bio</TableHead>
+                <TableHead>City</TableHead>
+                <TableHead>Students</TableHead>
                 <TableHead>Contact Number</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -87,7 +88,24 @@ export default function TeachersPage() {
                   <TableCell>{teacher.email}</TableCell>
                   <TableCell>{teacher.full_name}</TableCell>
                   <TableCell>{teacher.role}</TableCell>
-                  <TableCell>{teacher.bio || "-"}</TableCell>
+                  <TableCell>{teacher.city || "-"}</TableCell>
+                  <TableCell>
+                    {(teacher.students as Student[]) &&
+                    (teacher.students as Student[]).length > 0 ? (
+                      <div className="max-h-24 overflow-y-auto space-y-1 pr-2">
+                        {(teacher.students as Student[]).map((student) => (
+                          <div
+                            key={student.id}
+                            className="bg-muted rounded px-2 py-1 text-xs whitespace-nowrap"
+                          >
+                            {student.full_name}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <span>-</span>
+                    )}
+                  </TableCell>
                   <TableCell>{teacher.contact_number || "-"}</TableCell>
                   <TableCell>
                     <Button

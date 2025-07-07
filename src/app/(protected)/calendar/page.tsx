@@ -5,6 +5,8 @@ import interactionPlugin, { DateClickArg } from "@fullcalendar/interaction";
 import FullCalendar from "@fullcalendar/react";
 import { useEffect, useState } from "react";
 
+import { ControlledDrawerDialog } from "@/components/ModalDrawer/ModalDrawer";
+import { Button } from "@/components/ui/button";
 import { TableLoader } from "@/components/ui/TableLoader";
 import { apiFetch } from "@/lib/api";
 
@@ -27,7 +29,7 @@ interface BookingEvent {
   booking_date: string;
   time_slot: string;
   approve: boolean;
-  status: "pending" | "confirmed" | "cancelled";
+  status: "confirmed" | "cancelled";
   total_students: number;
   notes: string;
   created_at: string;
@@ -42,7 +44,7 @@ interface CalendarEvent {
   id: string;
   title: string;
   start: string;
-  status: string;
+  status: "confirmed" | "cancelled";
   color?: string;
   backgroundColor?: string;
   extendedProps: {
@@ -55,38 +57,24 @@ interface CalendarEvent {
   };
 }
 
+// Only two colors: green for confirmed, red for cancelled/others
 function getEventColors(event: CalendarEvent): {
   color?: string;
   backgroundColor?: string;
 } {
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const isToday = event.start.slice(0, 10) === todayStr;
-  let color, backgroundColor;
-
-  // Status-based colors
-  if (event.status === "pending") {
-    color = "#ff9800";
-    backgroundColor = "#ffecb3";
-  } else if (event.status === "cancelled") {
-    color = "#f44336";
-    backgroundColor = "#ffcdd2";
-  } else if (event.status === "confirmed") {
-    color = "#4caf50";
-    backgroundColor = "#c8e6c9";
+  if (event.status === "confirmed") {
+    return { color: "#4caf50", backgroundColor: "#c8e6c9" };
+  } else {
+    return { color: "#f44336", backgroundColor: "#ffcdd2" };
   }
-
-  // Override background for today
-  if (isToday) {
-    backgroundColor = "#1976d2";
-    color = "#fff";
-  }
-
-  return { color, backgroundColor };
 }
 
 function formatBookingToCalendarEvent(booking: BookingEvent): CalendarEvent {
-  // Create a proper title from booking data
-  const title = booking.title || `Booking #${booking.id}`;
+  // Show only booking title or professor name
+  const title =
+    booking.title && booking.title.trim()
+      ? booking.title
+      : booking.professor_details.full_name;
 
   // Format the date and time for the calendar
   const startDate = new Date(booking.booking_date);
@@ -94,12 +82,9 @@ function formatBookingToCalendarEvent(booking: BookingEvent): CalendarEvent {
   const [hours, minutes] = startTime.split(":");
   startDate.setHours(parseInt(hours), parseInt(minutes), 0, 0);
 
-  // Format students list
-  // const students = booking.student_details.map((s) => s.full_name).join(", ");
-
   const event: CalendarEvent = {
     id: booking.id.toString(),
-    title: `${title} (${booking.time_slot})`,
+    title: title,
     start: startDate.toISOString(),
     status: booking.status,
     extendedProps: {
@@ -122,6 +107,12 @@ export default function Calendar() {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState<CalendarEvent | null>(
+    null
+  );
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [cancelError, setCancelError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadBookings() {
@@ -131,51 +122,66 @@ export default function Calendar() {
         const response: BookingEvent[] = await apiFetch(
           "/booking/bookings/filter_bookings/"
         );
-
-        // Transform API response to calendar events
         const calendarEvents = response.map(formatBookingToCalendarEvent);
         setEvents(calendarEvents);
       } catch (e) {
         console.error("Failed to load bookings:", e);
         setError("Failed to load bookings. Please try again.");
-        // Fallback to empty events
         setEvents([]);
       } finally {
         setLoading(false);
       }
     }
-
     loadBookings();
   }, []);
 
   const handleDateClick = (arg: DateClickArg) => {
     console.log("Date Clicked:", arg.dateStr);
     // TODO: Open booking modal for the selected date
-    // You can integrate this with your BookingModal component
   };
 
   const handleEventClick = (arg: EventClickArg) => {
     const event = arg.event;
-    const extendedProps = event.extendedProps as CalendarEvent["extendedProps"];
-
-    console.log("Event Clicked:", {
-      bookingId: extendedProps.bookingId,
+    setSelectedBooking({
+      id: event.id,
       title: event.title,
-      professor: extendedProps.professor,
-      students: extendedProps.students,
-      timeSlot: extendedProps.timeSlot,
+      start: event.startStr,
       status:
-        event.backgroundColor === "#c8e6c9"
-          ? "confirmed"
-          : event.backgroundColor === "#ffecb3"
-            ? "pending"
-            : "cancelled",
-      notes: extendedProps.notes,
-      approved: extendedProps.approved,
+        event.extendedProps.status ||
+        (event.backgroundColor === "#c8e6c9" ? "confirmed" : "cancelled"),
+      color: event.backgroundColor === "#c8e6c9" ? "#4caf50" : "#f44336",
+      backgroundColor: event.backgroundColor,
+      extendedProps: event.extendedProps as CalendarEvent["extendedProps"],
     });
+    setDrawerOpen(true);
+  };
+  const handleCancelBooking = async () => {
+    if (!selectedBooking) return;
+    setCancelLoading(true);
+    setCancelError(null);
+    try {
+      await apiFetch(
+        `/booking/bookings/${selectedBooking.extendedProps.bookingId}/reject/`,
+        {
+          method: "GET",
+          credentials: "include", // remove if not needed
+        }
+      );
 
-    // TODO: Open booking edit modal with the booking data
-    // You can integrate this with your BookingModal component
+      setDrawerOpen(false);
+      // Refresh events
+      const bookingsResponse: BookingEvent[] = await apiFetch(
+        "/booking/bookings/filter_bookings/"
+      );
+      const calendarEvents = bookingsResponse.map(formatBookingToCalendarEvent);
+      setEvents(calendarEvents);
+    } catch (e: unknown) {
+      setCancelError(
+        e instanceof Error ? e.message : "Failed to cancel booking"
+      );
+    } finally {
+      setCancelLoading(false);
+    }
   };
 
   if (loading) {
@@ -234,6 +240,59 @@ export default function Calendar() {
           hour12: false,
         }}
       />
+      <ControlledDrawerDialog
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        title="Booking Details"
+        className="max-w-md"
+      >
+        {selectedBooking && (
+          <div className="flex flex-col gap-4 p-4">
+            <div>
+              <div className="font-semibold text-lg mb-2">
+                {selectedBooking.title}
+              </div>
+              <div className="text-sm text-muted-foreground mb-1">
+                <span className="font-medium">Professor:</span>{" "}
+                {selectedBooking.extendedProps.professor}
+              </div>
+              <div className="text-sm text-muted-foreground mb-1">
+                <span className="font-medium">Time Slot:</span>{" "}
+                {selectedBooking.extendedProps.timeSlot}
+              </div>
+              <div className="text-sm text-muted-foreground mb-1">
+                <span className="font-medium">Status:</span>{" "}
+                {selectedBooking.status}
+              </div>
+              <div className="text-sm text-muted-foreground mb-1">
+                <span className="font-medium">Notes:</span>{" "}
+                {selectedBooking.extendedProps.notes || "-"}
+              </div>
+              <div className="text-sm text-muted-foreground mb-1">
+                <span className="font-medium">Students:</span>{" "}
+                {selectedBooking.extendedProps.students
+                  .map((s) => s.full_name)
+                  .join(", ")}
+              </div>
+            </div>
+            {cancelError && (
+              <div className="text-red-500 text-sm">{cancelError}</div>
+            )}
+            <Button
+              variant="destructive"
+              className="w-full mt-4"
+              onClick={handleCancelBooking}
+              disabled={cancelLoading || selectedBooking.status === "cancelled"}
+            >
+              {cancelLoading
+                ? "Cancelling..."
+                : selectedBooking.status === "cancelled"
+                  ? "Already Cancelled"
+                  : "Cancel Booking"}
+            </Button>
+          </div>
+        )}
+      </ControlledDrawerDialog>
     </div>
   );
 }

@@ -1,8 +1,7 @@
 "use client";
-import { BadgeCheckIcon, PencilIcon } from "lucide-react";
+import { PencilIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Pagination,
@@ -22,6 +21,7 @@ import {
 } from "@/components/ui/table";
 import { TableLoader } from "@/components/ui/TableLoader";
 import { apiFetch } from "@/lib/api";
+import { cancelBookingById } from "@/lib/apiActions";
 import { Booking, PaginatedResponse } from "@/types/api";
 
 import { BookingModal } from "./BookingModal";
@@ -35,6 +35,21 @@ export default function BookingsPage() {
     data: null,
   });
   const [loading, setLoading] = useState(true);
+
+  // Cancel booking handler
+  const [cancelLoadingId, setCancelLoadingId] = useState<number | null>(null);
+  const handleCancelBooking = async (bookingId: number) => {
+    setCancelLoadingId(bookingId);
+    try {
+      await cancelBookingById(bookingId);
+      await fetchBookings(page);
+    } catch (error) {
+      // Optionally show error
+      console.error(error);
+    } finally {
+      setCancelLoadingId(null);
+    }
+  };
 
   async function fetchBookings(page: number) {
     setLoading(true);
@@ -90,7 +105,7 @@ export default function BookingsPage() {
                 {/* <TableHead>Teacher Email</TableHead> */}
                 <TableHead>Data Marcação</TableHead>
                 <TableHead> Data Treino</TableHead>
-                <TableHead>Status</TableHead>
+                {/* <TableHead>Status</TableHead> */}
                 <TableHead>Approval</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -118,7 +133,7 @@ export default function BookingsPage() {
                       {new Date(booking.booking_date).toLocaleString()}
                     </TableCell>
 
-                    <TableCell>
+                    {/* <TableCell>
                       <Badge
                         variant={
                           booking?.status === "confirmed"
@@ -129,25 +144,27 @@ export default function BookingsPage() {
                         <BadgeCheckIcon />
                         {booking.status}
                       </Badge>
+                    </TableCell> */}
+                    <TableCell>
+                      <Button
+                        variant="destructive"
+                        className="cursor-pointer"
+                        disabled={
+                          booking.status === "cancelled" ||
+                          cancelLoadingId === booking.id
+                        }
+                        onClick={() => handleCancelBooking(booking.id)}
+                      >
+                        {booking.status === "cancelled"
+                          ? "Cancelled"
+                          : cancelLoadingId === booking.id
+                            ? "Cancelling..."
+                            : "Cancel"}
+                      </Button>
                     </TableCell>
                     <TableCell>
                       <Button
                         className="cursor-pointer"
-                        variant="outline"
-                        disabled={booking?.status === "confirmed"}
-                      >
-                        Approve
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        className="cursor-pointer"
-                        disabled={booking.status === "cancelled"}
-                      >
-                        Cancel
-                      </Button>
-                    </TableCell>
-                    <TableCell>
-                      <Button
                         size="sm"
                         variant="outline"
                         onClick={() => openEdit(booking)}
