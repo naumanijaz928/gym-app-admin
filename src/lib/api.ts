@@ -8,7 +8,6 @@ export async function apiFetch<T>(url: string, options: RequestInit = {}) {
 
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}${url}`, {
     ...options,
-    referrerPolicy: "unsafe-url",
     headers: {
       ...options.headers,
       Authorization: `Bearer ${accessToken}`,
