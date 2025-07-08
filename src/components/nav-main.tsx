@@ -2,10 +2,10 @@
 
 import { type Icon, IconCirclePlusFilled } from "@tabler/icons-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
-import { useVideoStore } from "@/stores/videoStore";
-
+// import { useRouter } from "next/router";
+// import { useVideoStore } from "@/stores/videoStore";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -24,10 +24,11 @@ export function NavMain({
   }[];
 }) {
   const pathname = usePathname();
-  const { setUploadModalOpen } = useVideoStore();
+  const router = useRouter();
 
+  // const { setUploadModalOpen } = useVideoStore();
   const handleUploadClick = () => {
-    setUploadModalOpen(true);
+    router.push("/videos");
   };
 
   return (
