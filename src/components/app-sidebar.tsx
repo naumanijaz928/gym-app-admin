@@ -11,7 +11,9 @@ import {
   IconReport,
   IconSettings,
   IconUsers,
+  IconVideo,
 } from "@tabler/icons-react";
+// import { VideoIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
@@ -64,6 +66,11 @@ const data = {
       title: "Alunos",
       url: "/students",
       icon: IconUsers,
+    },
+    {
+      title: "Videos",
+      url: "/videos",
+      icon: IconVideo,
     },
   ],
   navClouds: [
