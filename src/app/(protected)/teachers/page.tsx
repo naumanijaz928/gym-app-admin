@@ -1,7 +1,9 @@
 "use client";
 import { PencilIcon } from "lucide-react";
 import { useEffect, useState } from "react";
+import swal from "sweetalert";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Pagination,
@@ -36,6 +38,7 @@ export default function TeachersPage() {
     }
   );
   const [loading, setLoading] = useState(true);
+  const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
 
   async function fetchTeachers(page: number) {
     setLoading(true);
@@ -58,6 +61,32 @@ export default function TeachersPage() {
   const openEdit = (teacher: Professor) =>
     setModal({ open: true, data: teacher });
 
+  const handleApproval = async (userId: number, approve: boolean) => {
+    setActionLoadingId(userId);
+    try {
+      const endpoint = approve
+        ? `/user/users/approve/?user_id=${userId}`
+        : `/user/users/cancel/?user_id=${userId}`;
+      await apiFetch(endpoint, { method: "GET" });
+      swal({
+        title: approve ? "Approved!" : "Approval Cancelled!",
+        text: approve
+          ? "User approved successfully!"
+          : "Approval cancelled successfully!",
+        icon: "success",
+      });
+      await fetchTeachers(page);
+    } catch (error: unknown) {
+      swal({
+        title: "Error!",
+        text: (error as Error)?.message || "Action failed",
+        icon: "error",
+      });
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
   const totalPages = Math.ceil(count / 10); // assuming 10 per page
 
   return (
@@ -79,6 +108,8 @@ export default function TeachersPage() {
                 <TableHead>City</TableHead>
                 <TableHead>Students</TableHead>
                 <TableHead>Contact Number</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Approval</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -107,6 +138,50 @@ export default function TeachersPage() {
                     )}
                   </TableCell>
                   <TableCell>{teacher.contact_number || "-"}</TableCell>
+                  <TableCell>
+                    {teacher.is_active ? (
+                      <Badge
+                        variant="secondary"
+                        className="bg-green-500 text-white border-green-500"
+                      >
+                        Active
+                      </Badge>
+                    ) : (
+                      <Badge
+                        variant="destructive"
+                        className="bg-red-500 text-white border-red-500"
+                      >
+                        Inactive
+                      </Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {teacher.is_active ? (
+                      <Button
+                        className="cursor-pointer"
+                        variant="destructive"
+                        size="sm"
+                        disabled={actionLoadingId === teacher.id}
+                        onClick={() => handleApproval(teacher.id!, false)}
+                      >
+                        {actionLoadingId === teacher.id
+                          ? "Cancelling..."
+                          : "Cancel Approval"}
+                      </Button>
+                    ) : (
+                      <Button
+                        className="cursor-pointer"
+                        variant="secondary"
+                        size="sm"
+                        disabled={actionLoadingId === teacher.id}
+                        onClick={() => handleApproval(teacher.id!, true)}
+                      >
+                        {actionLoadingId === teacher.id
+                          ? "Approving..."
+                          : "Approve"}
+                      </Button>
+                    )}
+                  </TableCell>
                   <TableCell>
                     <Button
                       size="sm"

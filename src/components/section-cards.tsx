@@ -27,6 +27,7 @@ export function SectionCards() {
         setAnalytics(data);
       } catch (err) {
         setError("Failed to load analytics");
+        // eslint-disable-next-line no-console
         console.error("Analytics fetch error:", err);
       } finally {
         setLoading(false);

@@ -32,6 +32,7 @@ export interface Professor {
   zipcode?: string;
   student_ids?: number[];
   students?: Student[];
+  is_active?: boolean;
 }
 
 export interface Slot {
